@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:weather_app/models/weather.dart';
+import 'package:weather_app/utils/fetchAPI.dart';
+import 'package:weather_app/widgets/searchBar.dart';
+import 'package:weather_app/widgets/forecast.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -16,101 +19,80 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        textTheme: const TextTheme(bodyMedium: TextStyle(color: Colors.black)),
       ),
-      home: MyHomePage(),
+      home: const MyHomePage(),
     );
   }
 }
 
 final locationNameProvider = StateProvider<String>((ref) => '');
 
-final weatherDataProvider = FutureProvider((ref) async {
-  final inputLocationName = ref.watch(locationNameProvider).toString();
+final weatherDataProvider = FutureProvider<Weather>((ref) async {
+  final inputLocationName = ref.watch(locationNameProvider);
 
-  if (inputLocationName.isEmpty) {
-    return {'status': 'None'};
-  } else {
-    try {
-      Response response = await Dio().get(
-          'https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001',
-          queryParameters: {
-            'Authorization': 'CWB-405F824E-2EC9-4A49-B0CF-7E44724E70A1',
-            'locationName': inputLocationName
-          });
-
-      if (response.statusCode == 200) {
-        var data = response.data['records'];
-        return data;
-      } else {
-        return {};
-      }
-    } catch (e) {
-      print(e);
-    }
-  }
+  return WeatherApiClient().getWeather(inputLocationName);
 });
 
 class MyHomePage extends ConsumerWidget {
-  MyHomePage({Key? key}) : super(key: key);
-
-  final TextEditingController _textEditingController = TextEditingController();
+  const MyHomePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     AsyncValue weatherData = ref.watch(weatherDataProvider);
 
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         body: Column(children: [
-      Container(
-        padding: const EdgeInsets.all(20),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _textEditingController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Enter text...',
-                ),
-              ),
-            ),
-            const SizedBox(width: 10.0),
-            ElevatedButton(
-              onPressed: () async {
-                // Update locationName
-                ref
-                    .read(locationNameProvider.notifier)
-                    .update((state) => state = _textEditingController.text);
+          SearchArea(locationNameProvider, weatherDataProvider),
+          weatherData.when(
+              loading: () => const CircularProgressIndicator(),
+              error: (err, stack) => Text('Error: $err'),
+              data: (data) {
+                final weatherData = data.toJson();
 
-                ref.read(weatherDataProvider.future);
-              },
-              child: const Text('確認'),
-            ),
-          ],
-        ),
-      ),
-      weatherData.when(
-          loading: () => const CircularProgressIndicator(),
-          error: (err, stack) => Text('Error: $err'),
-          data: (data) {
-            if (data['status'] == 'None') {
-              print(data);
-            } else {
-              for (var ele in data['location'][0]['weatherElement']) {
-                // print(ele);
-              }
-            }
-            return Column(
-              children: [
-                if (data['status'] == 'None')
-                  Text('No Data Here')
-                else
-                  for (var ele in data['location'][0]['weatherElement']) ...[
-                    Text(ele.toString())
-                  ]
-              ],
-            );
-          })
-    ]));
+                if (weatherData['records'] == null) {
+                  return const Text(
+                    'No Data Here',
+                    style: TextStyle(fontSize: 24.0),
+                  );
+                } else if (weatherData['records']['location'].isEmpty) {
+                  return const Text(
+                    '輸入的站名可能有誤',
+                    style: TextStyle(fontSize: 24.0),
+                  );
+                } else {
+                  return Column(
+                    children: <Widget>[
+                      // Location
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          const Icon(
+                            Icons.location_on_outlined,
+                            color: Colors.black87,
+                            size: 30.0,
+                            semanticLabel:
+                                'Text to announce in accessibility modes',
+                          ),
+                          Text(
+                            weatherData['records']['location'][0]
+                                ['locationName'],
+                            style: const TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 24,
+                                color: Colors.black87),
+                          )
+                        ],
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                      ),
+                      WeatherForecast(location: data.records.location[0])
+                    ],
+                  );
+                }
+              })
+        ]));
   }
 }

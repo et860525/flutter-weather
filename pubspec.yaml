@@ -1,4 +1,4 @@
-name: flutter_application_1
+name: weather_app
 description: A new Flutter project.
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -16,6 +16,8 @@ dependencies:
   cupertino_icons: ^1.0.2
   dio: ^5.2.1+1
   flutter_riverpod: ^2.3.6
+  intl: ^0.18.1
+  auto_size_text: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -25,3 +27,8 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+
+  fonts:
+    - family: WeatherIcons
+      fonts:
+        - asset: fonts/weathericons-regular.ttf
