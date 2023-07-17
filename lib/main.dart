@@ -41,58 +41,61 @@ class MyHomePage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     AsyncValue weatherData = ref.watch(weatherDataProvider);
 
-    return Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: Column(children: [
-          SearchArea(locationNameProvider, weatherDataProvider),
-          weatherData.when(
-              loading: () => const CircularProgressIndicator(),
-              error: (err, stack) => Text('Error: $err'),
-              data: (data) {
-                final weatherData = data.toJson();
+    return GestureDetector(
+      onTap: () {
+        FocusManager.instance.primaryFocus?.unfocus();
+      },
+      child: Scaffold(
+          resizeToAvoidBottomInset: false,
+          body: Column(children: [
+            SearchArea(locationNameProvider, weatherDataProvider),
+            weatherData.when(
+                loading: () => const CircularProgressIndicator(),
+                error: (err, stack) => Text('Error: $err'),
+                data: (data) {
+                  final weatherData = data.toJson();
 
-                if (weatherData['records'] == null) {
-                  return const Text(
-                    'No Data Here',
-                    style: TextStyle(fontSize: 24.0),
-                  );
-                } else if (weatherData['records']['location'].isEmpty) {
-                  return const Text(
-                    '輸入的站名可能有誤',
-                    style: TextStyle(fontSize: 24.0),
-                  );
-                } else {
-                  return Column(
-                    children: <Widget>[
-                      // Location
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          const Icon(
-                            Icons.location_on_outlined,
-                            color: Colors.black87,
-                            size: 30.0,
-                            semanticLabel:
-                                'Text to announce in accessibility modes',
-                          ),
-                          Text(
-                            weatherData['records']['location'][0]
-                                ['locationName'],
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 24,
-                                color: Colors.black87),
-                          )
-                        ],
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                      ),
-                      WeatherForecast(location: data.records.location[0])
-                    ],
-                  );
-                }
-              })
-        ]));
+                  if (weatherData['records'] == null) {
+                    return const Text(
+                      '請輸入縣市名稱',
+                      style: TextStyle(fontSize: 24.0),
+                    );
+                  } else if (weatherData['records']['location'].isEmpty) {
+                    return const Text(
+                      '輸入的站名可能有誤',
+                      style: TextStyle(fontSize: 24.0),
+                    );
+                  } else {
+                    return Column(
+                      children: <Widget>[
+                        // Location
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            const Icon(
+                              Icons.location_on_outlined,
+                              color: Colors.black87,
+                              size: 30.0,
+                              semanticLabel:
+                                  'Text to announce in accessibility modes',
+                            ),
+                            Text(
+                              weatherData['records']['location'][0]
+                                  ['locationName'],
+                              style: const TextStyle(
+                                  fontSize: 24, color: Colors.black87),
+                            )
+                          ],
+                        ),
+                        Container(
+                          padding: const EdgeInsets.all(5),
+                        ),
+                        WeatherForecast(location: data.records.location[0])
+                      ],
+                    );
+                  }
+                })
+          ])),
+    );
   }
 }

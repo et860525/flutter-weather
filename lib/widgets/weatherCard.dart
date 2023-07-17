@@ -28,55 +28,78 @@ class WeatherCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      child: Column(
-        children: <Widget>[
-          Padding(
-            padding: const EdgeInsets.only(top: 10),
-            child: Text(
-              title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
-            ),
+    final screenWidth = MediaQuery.of(context).size.width;
+    double cardHeight = 230.0;
+    // double dateFontSize =
+
+    if (screenWidth < 360) {
+      cardHeight = 250.0;
+    }
+
+    return Card(
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          side: BorderSide(
+            color: Theme.of(context).colorScheme.outline,
           ),
-          Text(
-            "$startTime ~ $endTime",
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w500),
-          ),
-          Padding(
-            padding: EdgeInsets.all(20),
-            child: Icon(weatherIcon ?? WeatherIcons.clear_day, size: 42.0),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 5),
-            child: Text("$minT ~ $maxT"),
-          ),
-          Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+          borderRadius: const BorderRadius.all(Radius.circular(12)),
+        ),
+        child: SizedBox(
+          height: cardHeight,
+          width: screenWidth * 0.30,
+          child: Column(
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.only(top: 10),
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.w600),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text(
+                  "$startTime ~ $endTime",
+                  style: const TextStyle(fontSize: 14),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Icon(weatherIcon ?? WeatherIcons.clear_day, size: 42.0),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 5),
+                child: Text("$minT ~ $maxT"),
+              ),
+              Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.water_drop_outlined,
-                        size: 20.0,
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.water_drop_outlined,
+                            size: 20.0,
+                          ),
+                          Text(' $pop%')
+                        ],
                       ),
-                      Text(' $pop%')
+                      Padding(
+                        padding: const EdgeInsets.only(top: 10),
+                        child: Text(
+                          ' $ci',
+                          // style: TextStyle(fontSize: ciFontSize),
+                        ),
+                      ),
                     ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 5),
-                    child: Text(
-                      ' $ci',
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ],
-              ))
-        ],
-      ),
-    );
+                  ))
+            ],
+          ),
+        ));
   }
 }

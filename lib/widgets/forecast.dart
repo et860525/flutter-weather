@@ -11,8 +11,6 @@ class WeatherForecast extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-
     // Format like {Wx: [List<Time>]}
     final times = {};
 
@@ -23,22 +21,22 @@ class WeatherForecast extends StatelessWidget {
     // Set title with 'startDate' & 'endDate'
     String getTitle(String _startDate, String _endDate) {
       DateTime today = DateTime.now().toLocal();
-      DateTime _startD = DateTime.parse(_startDate);
-      DateTime _endD = DateTime.parse(_endDate);
+      DateTime startDate = DateTime.parse(_startDate);
+      DateTime endDate = DateTime.parse(_endDate);
       final titleDayFilter = {'AM': '白天', 'PM': '晚上'};
 
-      if (today.day != _startD.day) {
-        return '明日${titleDayFilter[DateFormat('a').format(_startD)]}';
-      } else if (_startD.day != _endD.day) {
+      if (today.day != startDate.day) {
+        return '明日${titleDayFilter[DateFormat('a').format(startDate)]}';
+      } else if (startDate.day != endDate.day) {
         return '今晚明晨';
-      } else if (today.day == _startD.day && today.day == _endD.day) {
-        return '今天白天';
+      } else if (today.day == endDate.day && today.day == endDate.day) {
+        return '今日白天';
       } else {
         return '今日';
       }
     }
 
-    // Weather icons
+    // Weather codes
     const weatherTypes = {
       'isClear': [1],
       'isCloudy': [2, 3, 4, 5, 6, 7],
@@ -96,47 +94,41 @@ class WeatherForecast extends StatelessWidget {
     }
 
     IconData weatherCode2Icon(String _startDate, String iconCode) {
-      DateTime _startD = DateTime.parse(_startDate);
-      return weatherIcons[DateFormat('a').format(_startD)]![
+      DateTime startDate = DateTime.parse(_startDate);
+      return weatherIcons[DateFormat('a').format(startDate)]![
               weatherCodeTrans(weatherTypes, iconCode)] ??
           WeatherIcons.clear_day;
     }
 
     return SizedBox(
-        height: 240,
         child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: List.generate(
               3,
               (index) {
-                return Card(
-                    child: SizedBox(
-                        width: screenWidth * 0.28,
-                        child: WeatherCard(
-                          startTime: DateFormat('H:mm').format(DateTime.parse(
-                              times['Wx'][index].toJson()['startTime'])),
-                          endTime: DateFormat('H:mm').format(DateTime.parse(
-                              times['Wx'][index].toJson()['endTime'])),
-                          title: getTitle(
-                              times['Wx'][index].toJson()['startTime'],
-                              times['Wx'][index].toJson()['endTime']),
-                          wxName: times['Wx'][index].toJson()['parameter']
-                              ['parameterName'],
-                          wxValue: times['Wx'][index].toJson()['parameter']
-                              ['parameterValue'],
-                          maxT: times['MaxT'][index].toJson()['parameter']
-                              ['parameterName'],
-                          minT: times['MinT'][index].toJson()['parameter']
-                              ['parameterName'],
-                          pop: times['PoP'][index].toJson()['parameter']
-                              ['parameterName'],
-                          ci: times['CI'][index].toJson()['parameter']
-                              ['parameterName'],
-                          weatherIcon: weatherCode2Icon(
-                              times['Wx'][index].toJson()['startTime'],
-                              times['Wx'][index].toJson()['parameter']
-                                  ['parameterValue']),
-                        )));
+                return WeatherCard(
+                  startTime: DateFormat('H:mm').format(
+                      DateTime.parse(times['Wx'][index].toJson()['startTime'])),
+                  endTime: DateFormat('H:mm').format(
+                      DateTime.parse(times['Wx'][index].toJson()['endTime'])),
+                  title: getTitle(times['Wx'][index].toJson()['startTime'],
+                      times['Wx'][index].toJson()['endTime']),
+                  wxName: times['Wx'][index].toJson()['parameter']
+                      ['parameterName'],
+                  wxValue: times['Wx'][index].toJson()['parameter']
+                      ['parameterValue'],
+                  maxT: times['MaxT'][index].toJson()['parameter']
+                      ['parameterName'],
+                  minT: times['MinT'][index].toJson()['parameter']
+                      ['parameterName'],
+                  pop: times['PoP'][index].toJson()['parameter']
+                      ['parameterName'],
+                  ci: times['CI'][index].toJson()['parameter']['parameterName'],
+                  weatherIcon: weatherCode2Icon(
+                      times['Wx'][index].toJson()['startTime'],
+                      times['Wx'][index].toJson()['parameter']
+                          ['parameterValue']),
+                );
               },
             )));
   }

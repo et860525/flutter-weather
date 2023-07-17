@@ -12,7 +12,7 @@ class SearchArea extends ConsumerWidget {
   @override
   Widget build(final BuildContext context, WidgetRef ref) {
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+      padding: const EdgeInsets.only(left: 15, top: 40, right: 15, bottom: 20),
       child: Row(
         children: [
           Expanded(
