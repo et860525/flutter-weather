@@ -95,6 +95,12 @@ class WeatherForecast extends StatelessWidget {
 
     IconData weatherCode2Icon(String _startDate, String iconCode) {
       DateTime startDate = DateTime.parse(_startDate);
+
+      if (DateFormat('h').format(startDate) == '12') {
+        return weatherIcons['AM']![weatherCodeTrans(weatherTypes, iconCode)] ??
+            WeatherIcons.clear_day;
+      }
+
       return weatherIcons[DateFormat('a').format(startDate)]![
               weatherCodeTrans(weatherTypes, iconCode)] ??
           WeatherIcons.clear_day;
